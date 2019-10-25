@@ -132,7 +132,7 @@ public class Inspector {
 	public void checkSuperClasses(Object obj, Class superClassObj)
 	{
 		System.out.println();
-		System.out.println("CHECKING SUPER CLASS...");
+		System.out.println("\n//////////////-----CHECKING SUPER CLASS------/////////////...");
 		
 		//see if there's another super class...
 		Class superSuperClass = superClassObj.getSuperclass();
@@ -197,7 +197,7 @@ public class Inspector {
 			
 		}
 		
-		System.out.println("END OF CHECKING SUPERCLASS: " + superClassObj.getName());
+		System.out.println("//////////////-----END OF CHECKING SUPERCLASS: " + superClassObj.getName() + " -----///////////\n");
 		
 		
 	}
@@ -297,7 +297,7 @@ public class Inspector {
 		
 
 		// Print out field Objects
-		System.out.println("Now looking at field objects");
+		System.out.println("Now looking at field objects\n---------------------------------------------------------------------\n");
 		for(Field f : fObj)
 		{
 			f.setAccessible(true);
@@ -308,9 +308,9 @@ public class Inspector {
 				// Check if its primitive, if yes then simply print out
 				if(fieldType.isPrimitive())
 				{
-					System.out.println("Primitive Type");
+				
 					String fieldName = f.getName();
-					System.out.println("Field: " + fieldName + " ");
+					System.out.println("Field Name: " + fieldName + " is a Primitive Type\n ---------------------------------------------------------------------\n");
 					
 					
 				}
@@ -323,8 +323,8 @@ public class Inspector {
 					// Or an array of references
 					String fieldName = f.getName();
 					
-					System.out.println("Array Type");
-					System.out.println("Field: " + fieldName);
+	
+					System.out.println("Field Name: " + fieldName + " is an Array Type\n ---------------------------------------------------------------------\n");
 					
 					Object value = f.get(obj);
 					
@@ -350,7 +350,7 @@ public class Inspector {
 						// we have objects in array, so we'll probably need to recurse on these objects sadly
 						if(oArray.length <= 0 )
 						{
-							System.out.println("Empty Array...");
+							System.out.println("The Array is Empty...");
 						}
 						else
 						{
@@ -374,7 +374,7 @@ public class Inspector {
 								}
 								else
 								{
-									System.out.println("Null Object");
+									System.out.println("FieldName:" + fieldName + "[" + i + "]" + " =  Null Object!");
 								}
 								
 							}
@@ -387,7 +387,7 @@ public class Inspector {
 				
 				else if(!fieldType.isPrimitive())
 				{
-					System.out.println("Field: " + f.getName() +  " Reference Type");
+					System.out.println("Field name: " + f.getName() +  " is a Reference Type\n---------------------------------------------------------------------\n");
 					
 					//ensure the reference isn't null
 					
@@ -401,7 +401,7 @@ public class Inspector {
 						
 						else
 						{
-							System.out.println("Object has been inspectead already!");
+							System.out.println("Object has been inspected already!");
 						}
 					}
 					else
