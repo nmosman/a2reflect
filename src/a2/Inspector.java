@@ -133,8 +133,17 @@ public class Inspector {
 		//check interfaces, constructors, methods and fields
 		if(superClassObj.getInterfaces() != null)
 		{
-			System.out.println("Interfaces: ");
+			Class interfaces[] = superClassObj.getInterfaces();
+			
 			//print interfaces
+			System.out.println("Interfaces: ");
+			
+			for( Class i : interfaces)
+			{
+				System.out.print(i.getName() + ",");
+			}
+			System.out.println();
+		
 		}
 		
 		
@@ -270,142 +279,215 @@ public class Inspector {
 		System.out.println("Done inspecting interface " + interfaceObj.getName() + " ...");
 		
 	}
+	
+	private void recursiveFieldInspect(Object obj, Field[] fObj, boolean recursive)
+	{
+
+		// Print out field Objects
+		System.out.println("Now looking at field objects");
+		for(Field f : fObj)
+		{
+			try {
+				Class fieldType = f.getType();
+				
+				
+				// Check if its primitive, if yes then simply print out
+				if(fieldType.isPrimitive())
+				{
+					System.out.println("Primitive Type");
+					String fieldName = f.getName();
+					System.out.println("Field: " + fieldName + " ");
+					
+					
+				}
+				// Check if its array and go through all elements if so
+				
+				else if(fieldType.isArray())
+				{
+					// Now we have two cases - we either have:
+					// An array of primitives (no recursion needed)
+					// Or an array of references
+					String fieldName = f.getName();
+					
+					System.out.println("Array Type");
+					System.out.println("Field: " + fieldName);
+					
+					Object value = f.get(obj);
+					
+					int length = Array.getLength(value);
+					
+					Object[] oArray = new Object[length];
+					for(int i = 0; i < length; i++)
+					{
+						oArray[i] = Array.get(obj, i);
+					}
+					
+					Class arrayType = fieldType.getComponentType();
+					
+					
+					// Check to see if we're dealing with primitive array
+					if(arrayType.isPrimitive())
+					{
+						System.out.println("Primitive Array ");
+						//print out array 
+					}
+					else
+					{
+						// we have objects in array, so we'll probably need to recurse on these objects sadly
+						if(oArray.length <= 0 )
+						{
+							System.out.println("Empty Array...");
+						}
+						else
+						{
+							for(int i = 0; i < oArray.length; i++)
+							{
+								Object o = oArray[i];
+								String oType = "";
+								
+								
+								if(o != null)
+								{
+									if(!hasBeenInspected(o))
+									{
+										inspect(o, recursive);
+									}
+									else
+									{
+										System.out.println("Object has been inspected before!");
+									}
+									
+								}
+								else
+								{
+									System.out.println("Null Object");
+								}
+								
+							}
+						}
+					}
+				}
+				
+				// If its a reference type, need to go through that recursively if the recursive flag is true
+				
+				
+				else if(!fieldType.isPrimitive())
+				{
+					System.out.println("Field: " + f.getName() +  " Reference Type");
+					
+					//ensure the reference isn't null
+					
+					if(f.get(obj) != null)
+					{
+						// let's not inspect the same object again
+						if(!hasBeenInspected(obj))
+						{
+							inspect(obj, recursive);
+						}
+						
+						else
+						{
+							System.out.println("Object has been inspectead already!");
+						}
+					}
+					else
+					{
+						System.out.println("Null object");
+					}
+				}
+	
+				
+			
+				
+			}
+			
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void checkCurrentClass(Object obj, Class currObj)
+	{
+		System.out.println("Checking class : " + obj);
+		
+		Class superClassObj = currObj.getSuperclass();
+		System.out.println("Superclass : " + superClassObj.getName());
+		
+		//interfaces
+		
+		Class interfaceObj[] = currObj.getInterfaces();
+		System.out.println("Interfaces: ");
+	
+		
+		for( Class i : interfaceObj)
+		{
+			System.out.print(i.getName() + ",");
+		}
+		System.out.println();
+		
+		
+		Method mObj[] = currObj.getDeclaredMethods();
+		checkMethods(mObj);
+		
+		Constructor cObj[] = currObj.getConstructors();
+		checkConstructors(cObj);
+		
+		
+		Field[] fObj = currObj.getDeclaredFields();
+		checkFields(obj, fObj);
+		
+		if(currObj.isArray())
+		{
+			Class arrayType = currObj.getComponentType();
+			System.out.println("Component Type: " + arrayType.getName());
+			int length = Array.getLength(obj);
+			
+			Object oArray[] = new Object[length];
+			
+			for( int i = 0; i < length; i++)
+			{
+				oArray[i] = Array.get(obj, i);
+			}
+			
+			printObjectArray(oArray);
+		}
+	}
+	
     public void inspect(Object obj, boolean recursive)
     {
     	try{
     		Class metaObject = obj.getClass();
-    		Field[] fieldObjects = metaObject.getDeclaredFields();
+    		Field[] fObj = metaObject.getDeclaredFields();
     		
     		
     		
     		// Check current class
-    		
+    		checkCurrentClass(obj,  metaObject);
     		// Check super class
-    		// Print out field Objects
-    		System.out.println("Now looking at field objects");
-    		for(Field f : fieldObjects)
+    		Class superClassObj = metaObject.getSuperclass();
+    		
+    		checkSuperClasses(obj, superClassObj);
+    		
+    		
+    		// Check interfaces
+    		Class [] interfaceObj = metaObject.getInterfaces();
+    		for(Class i: interfaceObj)
     		{
-    			try {
-    				Class fieldType = f.getType();
-    				
-    				
-    				// Check if its primitive, if yes then simply print out
-    				if(fieldType.isPrimitive())
-    				{
-    					System.out.println("Primitive Type");
-    					String fieldName = f.getName();
-    					System.out.println("Field: " + fieldName + " ");
-    					
-    					
-    				}
-    				// Check if its array and go through all elements if so
-    				
-    				else if(fieldType.isArray())
-    				{
-    					// Now we have two cases - we either have:
-    					// An array of primitives (no recursion needed)
-    					// Or an array of references
-    					String fieldName = f.getName();
-    					
-    					System.out.println("Array Type");
-    					System.out.println("Field: " + fieldName);
-    					
-    					Object value = f.get(obj);
-    					
-    					int length = Array.getLength(value);
-    					
-    					Object[] oArray = new Object[length];
-    					for(int i = 0; i < length; i++)
-    					{
-    						oArray[i] = Array.get(obj, i);
-    					}
-    					
-    					Class arrayType = fieldType.getComponentType();
-    					
-    					
-    					// Check to see if we're dealing with primitive array
-    					if(arrayType.isPrimitive())
-    					{
-    						System.out.println("Primitive Array ");
-    						//print out array 
-    					}
-    					else
-    					{
-    						// we have objects in array, so we'll probably need to recurse on these objects sadly
-    						if(oArray.length <= 0 )
-    						{
-    							System.out.println("Empty Array...");
-    						}
-    						else
-    						{
-    							for(int i = 0; i < oArray.length; i++)
-    							{
-    								Object o = oArray[i];
-    								String oType = "";
-    								
-    								
-    								if(o != null)
-    								{
-    									if(!hasBeenInspected(o))
-    									{
-    										inspect(o, recursive);
-    									}
-    									else
-    									{
-    										System.out.println("Object has been inspected before!");
-    									}
-    									
-    								}
-    								else
-    								{
-    									System.out.println("Null Object");
-    								}
-    								
-    							}
-    						}
-    					}
-    				}
-    				
-    				// If its a reference type, need to go through that recursively if the recursive flag is true
-    				
-    				
-    				else if(!fieldType.isPrimitive())
-    				{
-    					System.out.println("Field: " + f.getName() +  " Reference Type");
-    					
-    					//ensure the reference isn't null
-    					
-    					if(f.get(obj) != null)
-    					{
-    						// let's not inspect the same object again
-    						if(!hasBeenInspected(obj))
-    						{
-    							inspect(obj, recursive);
-    						}
-    						
-    						else
-    						{
-    							System.out.println("Object has been inspectead already!");
-    						}
-    					}
-    					else
-    					{
-    						System.out.println("Null object");
-    					}
-    				}
-    	
-    				
-    			
-    				
-    			}
-    			
-    			catch(Exception e)
-    			{
-    				e.printStackTrace();
-    			}
+    			checkInterface(obj, i);
+    		}
+    		
+    	// Now check to see if we need to recursively check the class
+    		if(recursive)
+    		{
+    			System.out.println("Recursive flag is true; now recursing down class..");
+    			recursiveFieldInspect(obj, fObj, recursive);
+    			System.out.println("Done recursing through class");
     		}
     	}
     	
+    	// 
     	catch(Exception e){
     		
     	}
