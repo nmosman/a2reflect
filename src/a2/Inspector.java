@@ -2,12 +2,19 @@
 package a2;
 
 import java.lang.reflect.*;
+import java.util.ArrayList;
 
 public class Inspector {
 	
+	private ArrayList<Integer> objectCodes;
+	
+	public Inspector()
+	{
+		objectCodes = new ArrayList<Integer>();
+	}
 	public boolean hasBeenInspected(Object obj)
 	{
-		return false;
+		return objectCodes.contains(obj.hashCode());
 	}
 	
 	
@@ -282,11 +289,13 @@ public class Inspector {
 	
 	private void recursiveFieldInspect(Object obj, Field[] fObj, boolean recursive)
 	{
+		
 
 		// Print out field Objects
 		System.out.println("Now looking at field objects");
 		for(Field f : fObj)
 		{
+			f.setAccessible(true);
 			try {
 				Class fieldType = f.getType();
 				
@@ -457,6 +466,7 @@ public class Inspector {
 	
     public void inspect(Object obj, boolean recursive)
     {
+    	objectCodes.add(obj.hashCode());
     	try{
     		Class metaObject = obj.getClass();
     		Field[] fObj = metaObject.getDeclaredFields();
