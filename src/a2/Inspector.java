@@ -17,6 +17,11 @@ public class Inspector {
 		return objectCodes.contains(obj.hashCode());
 	}
 	
+	public ArrayList<Integer> getObjectCodes()
+	{
+		return this.objectCodes;
+	}
+	
 	
 	public boolean isWrapperClass(Object obj)
 	{
@@ -389,9 +394,9 @@ public class Inspector {
 					if(f.get(obj) != null)
 					{
 						// let's not inspect the same object again
-						if(!hasBeenInspected(obj))
+						if(!hasBeenInspected(f.get(obj)))
 						{
-							inspect(obj, recursive);
+							inspect(f.get(obj), recursive);
 						}
 						
 						else
@@ -427,7 +432,7 @@ public class Inspector {
 		//interfaces
 		
 		Class interfaceObj[] = currObj.getInterfaces();
-		System.out.println("Interfaces: ");
+		System.out.print("Interfaces: ");
 	
 		
 		for( Class i : interfaceObj)
