@@ -4,6 +4,15 @@ package a2;
 import java.lang.reflect.*;
 import java.util.ArrayList;
 
+/**
+ * @author nmosman
+ *
+ */
+/**
+ * @author nmosman
+ *
+ */
+
 public class Inspector {
 	
 	private ArrayList<Integer> objectCodes;
@@ -16,6 +25,7 @@ public class Inspector {
 	{
 		return objectCodes.contains(obj.hashCode());
 	}
+	
 	
 	public ArrayList<Integer> getObjectCodes()
 	{
@@ -34,6 +44,8 @@ public class Inspector {
 		obj instanceof Byte ||
 		obj instanceof Boolean);
 	}
+	
+	
 	public String getValueByString(Object obj)
 	{
 		
@@ -56,6 +68,27 @@ public class Inspector {
 		}
 		
 		return "null";	
+	}
+	
+	/**
+	 * Utility method to print out class objects into a list 
+	 * @author nmosman
+	 */
+	
+	public void printClassObjects(Class[] classObj)
+	{
+		int end = classObj.length - 1;
+		String printString = null;
+		for(int i = 0; i < classObj.length; i++)
+		{
+			printString = classObj[i].getName();
+			if(i!= end)
+			{
+				printString += " , ";
+			}
+			System.out.print(printString);
+			
+		}
 	}
 	
 	public void printObjectArray(Object[] array)
@@ -112,7 +145,7 @@ public class Inspector {
 						typeString = fieldType.toString();
 						fieldValString = val.toString();
 						System.out.println("Field: " + modifier + " " + typeString + " " + f.getName());
-						System.out.println(" Value : " + fieldValString);
+						System.out.println("Value : " + fieldValString);
 					}
 					else if(val != null)
 					{
@@ -211,14 +244,9 @@ public class Inspector {
 			Class paramTypes[] = c.getParameterTypes();
 			
 			String modifier = Modifier.toString(c.getModifiers());
-			
 			System.out.print("Constructor: " + modifier + " " + c.getName() +"( ");
 			
-			for (Class p : paramTypes)
-			{
-				System.out.print(p.getName() + ",");
-				
-			}
+			printClassObjects(paramTypes);
 			System.out.print(")");
 			System.out.println();
 			
@@ -238,23 +266,15 @@ public class Inspector {
 			
 			System.out.print("Method: " + modifier + " " + returnType.getName()
 													+ " "  + m.getName()  + "( ");
+			printClassObjects(paramTypes);
 			
-			for (Class p : paramTypes)
-			{
-				System.out.print(p.getName() + ",");
-				
-			}
-			System.out.print(")");
+			
+			System.out.print(") ");
 			
 			if(exceptionTypes.length > 0)
 			{
 				System.out.print(" throws ");
-				
-				for (Class e : exceptionTypes)
-				{
-					System.out.print(e.getName() + ",");
-					
-				}
+				printClassObjects(exceptionTypes);
 				System.out.print(")\n");
 				
 			}
@@ -297,7 +317,7 @@ public class Inspector {
 		
 
 		// Print out field Objects
-		System.out.println("Now looking at field objects\n---------------------------------------------------------------------\n");
+		System.out.println("\nNow looking at field objects\n---------------------------------------------------------------------\n");
 		for(Field f : fObj)
 		{
 			f.setAccessible(true);
@@ -310,7 +330,7 @@ public class Inspector {
 				{
 				
 					String fieldName = f.getName();
-					System.out.println("Field Name: " + fieldName + " is a Primitive Type\n ---------------------------------------------------------------------\n");
+					System.out.println("Field Name: " + fieldName + " is a Primitive Type\n ");
 					
 					
 				}
@@ -323,8 +343,8 @@ public class Inspector {
 					// Or an array of references
 					String fieldName = f.getName();
 					
-	
-					System.out.println("Field Name: " + fieldName + " is an Array Type\n ---------------------------------------------------------------------\n");
+						
+					
 					
 					Object value = f.get(obj);
 					
@@ -342,11 +362,12 @@ public class Inspector {
 					// Check to see if we're dealing with primitive array
 					if(arrayType.isPrimitive())
 					{
-						System.out.println("Primitive Array ");
+						System.out.println("Field Name: " + fieldName + " is a Primitive Array Type\n");
 						//print out array 
 					}
 					else
 					{
+						System.out.println("Field Name: " + fieldName + " is an Array of Objects Type\n");
 						// we have objects in array, so we'll probably need to recurse on these objects sadly
 						if(oArray.length <= 0 )
 						{
