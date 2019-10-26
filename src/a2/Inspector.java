@@ -6,33 +6,57 @@ import java.util.ArrayList;
 
 /**
  * @author nmosman
- *
- */
-/**
- * @author nmosman
- *
+ * Inspector class responsible for the methods that support the inspect method. This method utilizes the
+ * Java Reflection API and performs introspection on any given class
  */
 
 public class Inspector {
 	
 	private ArrayList<Integer> objectCodes;
 	
+	private int recursionLevel = 0;
 	public Inspector()
 	{
 		objectCodes = new ArrayList<Integer>();
 	}
+	
+	/**
+	 * @author nmosman
+	 * Checks if a class has been inspected before by using the object's hash code
+	 */
 	public boolean hasBeenInspected(Object obj)
 	{
 		return objectCodes.contains(obj.hashCode());
 	}
 	
-	
+	/**
+	 * @author nmosman
+	 * Returns the list of object codes 
+	 */
 	public ArrayList<Integer> getObjectCodes()
 	{
 		return this.objectCodes;
 	}
 	
 	
+	/**
+	 * @author nmosman
+	 *
+	 */
+	//private void printWithTabs(String s)
+	//{
+		//for(int i = 0; i < recursionLevel; i++)
+	//	{
+	//		System.out.print("\t");
+		//}
+	//	System.out.println(s);
+	//}
+	
+	
+	/**
+	 * @author nmosman
+	 * Checks whether an object is a wrapper class 
+	 */
 	public boolean isWrapperClass(Object obj)
 	{
 		return (obj instanceof Character ||
@@ -46,6 +70,10 @@ public class Inspector {
 	}
 	
 	
+	/**
+	 * @author nmosman
+	 * Returns the string value of a given object
+	 */
 	public String getValueByString(Object obj)
 	{
 		
@@ -70,11 +98,26 @@ public class Inspector {
 		return "null";	
 	}
 	
+	
+	/**
+	 * @author nmosman
+	 * Prints a simple header for a class
+	 */
+	public void printClassHeader(Object obj)
+	{
+		System.out.println("///---------------------------------------------///\n"
+				+ "            Checking class : " + obj + 
+				"\n///---------------------------------------------///");
+	}
 	/**
 	 * Utility method to print out class objects into a list 
 	 * @author nmosman
 	 */
 	
+	/**
+	 * @author nmosman
+	 * Prints out class objects in an array in a list manner
+	 */
 	public void printClassObjects(Class[] classObj)
 	{
 		int end = classObj.length - 1;
@@ -91,6 +134,10 @@ public class Inspector {
 		}
 	}
 	
+	/**
+	 * @author nmosman
+	 * Prints out an array with array[i] = value notation
+	 */
 	public void printObjectArray(Object[] array)
 	{
 		for(int i = 0; i < array.length; i++)
@@ -102,6 +149,11 @@ public class Inspector {
 		}
 	}
 	
+	
+	/**
+	 * @author nmosman
+	 * Inspects the fields of a given class 
+	 */
 	private void checkFields(Object obj, Field[] fObj)
 	{
 		for(Field f: fObj)
@@ -112,9 +164,7 @@ public class Inspector {
 				
 				String typeString = null;
 				String fieldValString = null;
-				
 				Object val = f.get(obj);
-				
 				String modifier = Modifier.toString(f.getModifiers());
 				
 				// check if field is an array
@@ -162,6 +212,12 @@ public class Inspector {
 			}
 		}
 	}
+	
+	
+	/**
+	 * @author nmosman
+	 * Will check the immediate super classes of an object and will recursively go up in hierachy
+	 */
 	public void checkSuperClasses(Object obj, Class superClassObj)
 	{
 		System.out.println();
@@ -193,9 +249,7 @@ public class Inspector {
 		
 		
 		checkConstructors(superClassObj.getConstructors());
-		
 		checkMethods(superClassObj.getDeclaredMethods());
-		
 		checkFields(obj, superClassObj.getDeclaredFields() );
 		
 		// check up super classes and then interfaces
@@ -204,8 +258,6 @@ public class Inspector {
 		{
 			System.out.println("The current superclass " + superClassObj.getName() + " has a superclass named " + superSuperClass.getName());
 			checkSuperClasses(obj, superSuperClass);
-			
-			
 		}
 		else
 		{
@@ -236,6 +288,12 @@ public class Inspector {
 	}
 	
 	
+	
+	/**
+	 * @author nmosman
+	 * Prints out all of the constructors for a given object 
+	 */
+	
 	private void checkConstructors(Constructor[] cObj)
 	{
 		for(Constructor c : cObj)
@@ -253,6 +311,11 @@ public class Inspector {
 		}
 	}
 	
+	
+	/**
+	 * @author nmosman
+	 * Returns all of the methods and its modifiers, parameter types, return type and more of a given class object
+	 */
 	private void checkMethods(Method[] mObj)
 	{
 		for(Method m : mObj)
@@ -281,6 +344,11 @@ public class Inspector {
 		}
 	}
 	
+	
+	/**
+	 * @author nmosman
+	 * Will check and print all of the interfaces and up in hierachy of a given class object 
+	 */
 	public void checkInterface(Object obj, Class interfaceObj)
 	{
 		System.out.println("Now checking interface...");
@@ -292,7 +360,6 @@ public class Inspector {
 		//NOTE: It is technically possible to have fields in interfaces
 		//BUT, this is considered bad design practice for OOP, so 
 		//I won't be checking through fields with interfaces!
-		
 		
 		
 		// check if the interface extends a class
@@ -312,12 +379,16 @@ public class Inspector {
 		
 	}
 	
+	
+	/**
+	 * @author nmosman
+	 * Recursive version of the inspect field method which checks for all possible field types and handles primitive arrays and an array of references
+	 *
+	 */
 	private void recursiveFieldInspect(Object obj, Field[] fObj, boolean recursive)
 	{
-		
-
 		// Print out field Objects
-		System.out.println("\nNow looking at field objects\n---------------------------------------------------------------------\n");
+		System.out.println("\nNow looking at field objects");
 		for(Field f : fObj)
 		{
 			f.setAccessible(true);
@@ -408,7 +479,7 @@ public class Inspector {
 				
 				else if(!fieldType.isPrimitive())
 				{
-					System.out.println("Field name: " + f.getName() +  " is a Reference Type\n---------------------------------------------------------------------\n");
+					System.out.println("Field name: " + f.getName() +  " is a Reference Type");
 					
 					//ensure the reference isn't null
 					
@@ -432,8 +503,6 @@ public class Inspector {
 				}
 	
 				
-			
-				
 			}
 			
 			catch(Exception e)
@@ -443,9 +512,14 @@ public class Inspector {
 		}
 	}
 	
+	
+	/**
+	 * @author nmosman
+	 * Inspects the current class object and retrieves all of its metadata
+	 */
 	private void checkCurrentClass(Object obj, Class currObj)
 	{
-		System.out.println("Checking class : " + obj);
+		printClassHeader(obj);
 		
 		Class superClassObj = currObj.getSuperclass();
 		System.out.println("Superclass : " + superClassObj.getName());
@@ -490,6 +564,12 @@ public class Inspector {
 		}
 	}
 	
+	
+	/**
+	 * @author nmosman
+	 * Main method of the program that is to be called by the driver program. obj is the main 
+	 * class to inspect and the recursive flag indicates whether to go through fields and inspect them
+	 */
     public void inspect(Object obj, boolean recursive)
     {
     	objectCodes.add(obj.hashCode());
@@ -517,9 +597,10 @@ public class Inspector {
     	// Now check to see if we need to recursively check the class
     		if(recursive)
     		{
-    			System.out.println("Recursive flag is true; now recursing down class..");
+    			System.out.println("\tRecursive flag is true; now recursing down class..");
+    			recursionLevel += 1;
     			recursiveFieldInspect(obj, fObj, recursive);
-    			System.out.println("Done recursing through class");
+    			System.out.println("\tDone recursing through class");
     		}
     	}
     	
